@@ -1,0 +1,4 @@
+baseURL = "http://example.org/"
+languageCode = "en-us"
+title = "3vilM33pl3"
+theme = "hugo-swift-theme"
