@@ -1,0 +1,31 @@
+<head>
+  <title>{{ with .Title }}{{ humanize . }} | {{ end }}{{ .Site.Title }}</title>
+  <meta charset='utf-8'>
+  {{ hugo.Generator }}
+  {{- with .Site.Params.ga_verify }}
+  <meta content="{{ . }}" name="google-site-verification" />
+  {{- end }}
+  <meta content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' name = 'viewport'>
+  <meta content = 'IE=edge' http-equiv = 'X-UA-Compatible'>
+  {{- if (ne hugo.Environment "development") }}
+  {{- partial "analytics" . }}
+  {{- end }}
+  {{- partial "opengraph" . }}
+  {{- partial "favicon" . }}
+  <link href='{{ .Permalink }}' rel='canonical'>
+  {{- $options := (dict "targetPath" "css/styles.css" "outputStyle" "compressed" "enableSourceMap" "true") -}}
+  {{- $styles := resources.Get "sass/main.sass" | resources.ExecuteAsTemplate "main.sass" . | resources.ToCSS $options | resources.Fingerprint "sha512" }}
+  <link href = '{{ $styles.Permalink }}' integrity = '{{ $styles.Data.Integrity }}' rel = 'stylesheet'>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
