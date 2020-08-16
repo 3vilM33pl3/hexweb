@@ -68,16 +68,17 @@ h1,h2,h3,h4,h5
   font-family: inherit
   font-weight: 500
   padding: 5px 0
-  margin: 15px 0
+  margin-top: 15px
   color: inherit
   line-height: 1.35
 
 h1
   font-size: 200%
 h2
-  font-size: 175%
-h3
   font-size: 150%
+h3
+  font-size: 100%
+  font-style: italic
 h4
   font-size: 125%
 h5
@@ -135,13 +136,13 @@ ol
   @media screen and (min-width: 667px)
     // margin-left: 1rem
   li 
-    margin: 0 0 0.5rem 0
     counter-increment: my-awesome-counter
     position: relative
+    font-size: 0.95rem
     padding-left: 0.5rem !important
     &::before
       content: counter(my-awesome-counter)
-      font-size: 1.15rem
+      font-size: 0.95rem
       display: inline-grid
       align-items: center
       font-weight: 500
