@@ -4,7 +4,8 @@ date: 2020-08-16T11:45:56+01:00
 draft: true
 image: MeepleOnTarget.png
 ---
-This article will explain how to create simple user controlled Pawn as an Unreal Engine 4 plugin.
+This article will explain how to create simple user controlled Pawn which can only move forward and backwards. 
+The whole application is wrapped in a UE4 plugin.
 
 # Prerequisites
 If you want to create it yourself:
@@ -20,33 +21,44 @@ If you want to read along
 
 ## Additional notes
  
-* If you want to create new C++ classes it is advisable to add them via the 
+* If you want to create new C++ classes you need to use the 
 [Unreal Editor C++ Class Wizard](https://docs.unrealengine.com/en-US/Programming/Development/ManagingGameCode/CppClassWizard/index.html).
 * Unreal Engine 4.25
+
+## Plugin structure
+The most minimalist plugin in UE4 contains a single class to enable UE4 to start and shutdown the   
  
 ## Architecture
 ![Simple Pawn Architecture](/svg/SimplePawnArchitecture.svg)
 A Pawn is the UE4 base class of all Actors which can be possesed by players or AI. 
-As a start you need to add your own implementation of a Pawn and Movement Component.
+By following the [composite reuse pattern](https://en.wikipedia.org/wiki/Composition_over_inheritance), 
+in this example, the Pawn's functionality gets extended by adding the following components:
+* Static mesh component (`UStaticMeshComponent`)
+* Camera component (`UCameraComponent`)
+* Spring arm component (`USpringArmComponent`)
+* Movement component (`UPawnMovementComponent`) 
 
-After the implementation you can than add static mesh component, the 3d model (static mesh), 
-the camera spring arm, the camera and the custom movement component to the custom pawn.
-(All of this happens in the constructor of the Pawn).
+These components are initialised in the constructor of the Pawn together with a static mesh object 
+containing a 3D model. The static mesh _object_ (`UStaticMesh`) gets added to the static mesh _component_ (`UStaticMeshComponent`).
+The static mesh component in itself doesn't hold any polygon data.
 
 ## Implementation
-### Pawn Implementation
-
-Custom implementation inheriting from `APawn`
+### Custom Pawn Inherits from `APawn`
+This class needs to be created with the [Unreal Editor C++ Class Wizard](https://docs.unrealengine.com/en-US/Programming/Development/ManagingGameCode/CppClassWizard/index.html).
+It's a class used during _Runtime_ and is located in a module (folder) in the `Source` folder of the plugin.
 ```c++ 
 UCLASS()
 class MM_MULTITHREADING_API ASimplePawn : public APawn
 { ... }
 ```
+In the newly created class the following methods are overridden:
+* `BeginPlay()`
+* `Tick(..)`
+* `SetupPlayerInputComponent(..)` 
 
-
-### Movement Component Implementation
-
-Custom implementation inheriting from `UPawnMovementComponent`
+### Custom Movement Component Inherits from `UPawnMovementComponent`
+This class needs to be created with the [Unreal Editor C++ Class Wizard](https://docs.unrealengine.com/en-US/Programming/Development/ManagingGameCode/CppClassWizard/index.html).
+It's a class used during _Runtime_ and is located in a module (folder) in the `Source` folder of the plugin.
 ```c++
 UCLASS()
 class MM_MULTITHREADING_API USimplePawnMovementComponent 
@@ -54,10 +66,8 @@ class MM_MULTITHREADING_API USimplePawnMovementComponent
 { ... }
 ```
 
-
-### Composition of Components to the Custom Pawn
-Following the [Composite Design Pattern](https://en.wikipedia.org/wiki/Composite_pattern) we will add a 
- static mesh component (`UStaticMeshComponent`), a camera on a springarm and the custom movement component. 
+### Composition of Components in the Custom Pawn
+_This code is part of the pawn's class declaration_
 ```c++
 UPROPERTY(Category=Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
 class UStaticMeshComponent *MeepleComponent;
@@ -68,12 +78,21 @@ class USpringArmComponent* SpringArm;
 UPROPERTY(Category=Camera, VisibleDefaultsOnly, BlueprintReadOnly)
 class UCameraComponent* Camera;
 
-private:
+public:
 UPROPERTY()
 class USimplePawnMovementComponent* SimplePawnMovementComponent;
 ```
 
+Needs these two includes:
+```c++
+#include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+```
+
+
 ### Adding the 3D Model (Static Mesh) 
+_This code lives in the pawn's constructor_
+
 The static mesh component on its own doesn't have mesh data, the actual polygon data is added 
 in the constructor with a static mesh object (`UStaticMesh`)
 
@@ -90,8 +109,12 @@ MeepleComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Meeple"));
 MeepleComponent->SetStaticMesh(ConstructorStatics.MeepleMesh.Get());
 RootComponent = MeepleComponent;
 ```
+The `RootComponent` defines the transform (location, rotation, scale) of this Pawn in the world. 
+All other components need to be attached to this, be it directly or via other components.
 
 ### Initialisation of the Spring Arm
+_This code lives in the pawn's constructor_
+
 The spring arm component allows the camera to accelerate and decelerate more slowy then the Pawn 
 (smoothing the camera path) and it also prevents the camera to go through solid objects.
 ```c++
@@ -105,23 +128,121 @@ SpringArm->SetRelativeLocation(SpringArmLocation);
 SpringArm->SetRelativeRotation(SpringArmRotation);
 SpringArm->TargetArmLength = .0f;	
 ```
+The spring arm is attached to the root component.
+
 ### Initialisation of the Camera
+_This code lives in the pawn's constructor_
+
 ```c++
 Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera0"));
 Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);	
 Camera->bUsePawnControlRotation = false; 
 ```
+The camera is attached to the spring arm.
 
 ### Initialisation of the Custom Movement Component
+_This code lives in the pawn's constructor_
 
 ```c++
 SimplePawnMovementComponent = CreateDefaultSubobject<USimplePawnMovementComponent>(TEXT("CustomMovementComponent"));
 SimplePawnMovementComponent->UpdatedComponent = RootComponent;
 ```
 
-## Linking it all together
+### Auto Possess 
+_This code lives in the pawn's constructor_
+To activate (possess) this pawn and give control to the player when the game starts or when it gets spawned:
+```c++
+AutoPossessPlayer = EAutoReceiveInput::Player0;
+```
+This can also be set in the Editor
 
+### Moving Forward Method
+_This code is implemented in the pawn_
+For the actor to move forward it needs to have a method to tell the movement component how much it has to move
+based on the input of the player.
 
+In class definition:
+```c++
+void MoveForward(float AxisValue);
+```
+Implementation:
+```c++
+void ASimplePawn::MoveForward(float AxisValue)
+{
+	if (SimplePawnMovementComponent && (SimplePawnMovementComponent->UpdatedComponent == RootComponent))
+	{
+		SimplePawnMovementComponent->AddInputVector(GetActorForwardVector() * AxisValue);
+	}	
+}
+```
+First there is a a check to see if the movement component exists and if it is the root component.
+If so, the `AxisValue` (usually between 0 and 1) gets multiplied with vector pointing in the direction 
+it is meant to go when the player pushes/activates/clicks the joystick/.../key which is associated with
+the (in this case()) forward movement. Moving backward is using the same method by inputting a negative value. 
+
+### Bind Moving Forward Method to _MoveForward_ Axis
+_This code is implemented in the pawn_
+This overridden method is auto generated by the Unreal C++ Class Wizard. It only needs to bind the 
+movement method with the correct axis.
+Implementation:
+```c++
+void ASimplePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ASimplePawn::MoveForward);
+
+}
+```
+In the project settings under Engine -> Input, the "MoveForward" string can be mapped to specific keys or other input devices
+{{< imgcenterresize "/images/BindingAxis.png" "50%" >}}
+
+### Moving
+_This code is implemented in the movement component_
+
+Every frame the movement component has to move the pawn in the desired direction based on the players input
+or other external factors. The following (generic) implementation can deal with movement requests in any direction. 
+To execute code in a component every frame the `TickComponent(..)` method needs to be overriden
+
+In class definition:
+```c++
+public:
+virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+    FActorComponentTickFunction* ThisTickFunction) override;
+```
+Implementation:
+```c++
+void USimplePawnMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+    FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (!PawnOwner || !UpdatedComponent || ShouldSkipUpdate(DeltaTime))
+    {
+        return;
+    }
+
+    FVector DesiredMovementThisFrame = ConsumeInputVector().GetClampedToMaxSize(1.0f) * DeltaTime * 150.0f;
+    if (!DesiredMovementThisFrame.IsNearlyZero())
+    {
+        FHitResult Hit;
+        SafeMoveUpdatedComponent(DesiredMovementThisFrame, UpdatedComponent->GetComponentRotation(), true, Hit);
+    }
+}
+```
+After calling the parent method and some checks, the input vector is consumed and set to zero. This is the same vector 
+which is set with `SimplePawnMovementComponent->AddInputVector(GetActorForwardVector() * AxisValue);` in the 
+`MoveForward()` method above. The `ConsumeInputVector()` will read the value and return it after it sets the vector 
+to zero. (Hence it is called "consume").
+
+### For Efficiency 
+```c++
+UPawnMovementComponent* ASimplePawn::GetMovementComponent() const
+{
+	return SimplePawnMovementComponent;
+}
+```
+UE4 uses reflection to determine if there is a custom movement component. Implementing this method which 
+immediately returns the movement component, instead of looking it up, is more efficient.   
  
 
  

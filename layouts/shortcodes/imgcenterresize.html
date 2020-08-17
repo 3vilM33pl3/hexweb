@@ -1,0 +1,6 @@
+{{ $original := .Get 0 }}
+{{ $options := .Get 1 }}
+{{ $image := .Scratch.Get "image" }}
+<div style="text-align: center">
+    <img src="{{ $original }}" width="{{ $options }}"  >
+</div>

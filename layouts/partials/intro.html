@@ -6,7 +6,7 @@
 {{ $scratch.Set "image" "thumbnail.svg" }}
 {{- end }}
 {{- $image := $scratch.Get "image" }}
-{{- $bg := (path.Join "images" $image | absLangURL) }}
+{{- $bg := (path.Join "images" $image | absLangURL ) }}
 <section class = 'intro_header' style = 'background-image:url({{ $bg }});'>
   <h1 class='intro_title'>{{ .Title }}</h1>
 </section>
