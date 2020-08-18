@@ -1,3 +1,4 @@
 FROM joseluisq/static-web-server
-COPY ./ /public/
+COPY ./public /public/
+EXPOSE 80
 
