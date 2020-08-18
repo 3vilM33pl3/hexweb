@@ -1,4 +1,4 @@
 FROM joseluisq/static-web-server
-COPY /public /public/
+COPY /home/runner/work/hexweb/hexweb/public /public/
 EXPOSE 80
 
