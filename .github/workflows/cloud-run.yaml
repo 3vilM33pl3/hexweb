@@ -20,6 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: hugo
+          uses: klakegg/actions-hugo@1.0.0
+
       # Setup gcloud CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
         with:
