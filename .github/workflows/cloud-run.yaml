@@ -27,7 +27,7 @@ jobs:
           extended: true
 
       - name: Build
-        run: hugo -D -d ./public
+        run: hugo -D -d /public
 
       # Setup gcloud CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
