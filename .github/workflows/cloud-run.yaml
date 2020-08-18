@@ -8,8 +8,8 @@ on:
 # Environment variables available to all jobs and steps in this workflow
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  RUN_REGION: ${{ secrets.CLOUD_RUN_REGION }}
-  SERVICE_NAME: ${{ secrets.CLOUD_RUN_SERVICE }}
+  RUN_REGION: us-east1
+  SERVICE_NAME: hexweb
 
 jobs:
   setup-build-deploy:
@@ -35,7 +35,7 @@ jobs:
       # Build and push image to Google Container Registry
       - name: Build
         run: |
-          gcloud builds submit -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA
+          gcloud builds submit -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA --timeout 20m
 
       # Deploy image to Cloud Run
       - name: Deploy
