@@ -69,6 +69,7 @@ class MM_MULTITHREADING_API USimplePawnMovementComponent
 ### Composition of Components in the Custom Pawn
 _This code is part of the pawn's class declaration_
 ```c++
+public:
 UPROPERTY(Category=Mesh, VisibleDefaultsOnly, BlueprintReadOnly)
 class UStaticMeshComponent *MeepleComponent;
 
@@ -78,7 +79,6 @@ class USpringArmComponent* SpringArm;
 UPROPERTY(Category=Camera, VisibleDefaultsOnly, BlueprintReadOnly)
 class UCameraComponent* Camera;
 
-public:
 UPROPERTY()
 class USimplePawnMovementComponent* SimplePawnMovementComponent;
 ```
@@ -101,7 +101,7 @@ struct FConstructorStatics
 {
     ConstructorHelpers::FObjectFinderOptional<UStaticMesh> MeepleMesh;
     FConstructorStatics()
-        : MeepleMesh(TEXT("/MM_MultiThreading/Meeple.Meeple")) {}
+        : MeepleMesh(TEXT("/MeMoSimplePawn/Meeple.Meeple")) {}
 };
 static FConstructorStatics ConstructorStatics;
 
@@ -111,6 +111,13 @@ RootComponent = MeepleComponent;
 ```
 The `RootComponent` defines the transform (location, rotation, scale) of this Pawn in the world. 
 All other components need to be attached to this, be it directly or via other components.
+
+The `TEXT` string of the MeepleMesh is composed of the plugin name and the name of the mesh 
+(twice with a dot in the middle). This will point to the `Content` directory of the plugin: 
+
+![](/images/PluginContentDir.png)
+
+Download the <a href="/fbx/meeple.fbx" download>Meeple 3D Model</a> which can be used for importing in UE4 <a href="/fbx/meeple.fbx" download>here</a>.
 
 ### Initialisation of the Spring Arm
 _This code lives in the pawn's constructor_
@@ -163,6 +170,7 @@ based on the input of the player.
 
 In class definition:
 ```c++
+private:
 void MoveForward(float AxisValue);
 ```
 Implementation:
@@ -190,7 +198,6 @@ void ASimplePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("MoveForward", this, &ASimplePawn::MoveForward);
-
 }
 ```
 In the project settings under Engine -> Input, the "MoveForward" string can be mapped to specific keys or other input devices
@@ -241,9 +248,11 @@ UPawnMovementComponent* ASimplePawn::GetMovementComponent() const
 	return SimplePawnMovementComponent;
 }
 ```
-UE4 uses reflection to determine if there is a custom movement component. Implementing this method which 
-immediately returns the movement component, instead of looking it up, is more efficient.   
- 
+UE4 uses reflection to determine if there is a custom movement component. 
+Implementing this method which immediately returns the movement component, 
+instead of looking it up, is more efficient.   
 
- 
+
+## Executing
+Enable `View Plugin Content` 
 
