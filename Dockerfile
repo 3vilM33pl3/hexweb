@@ -1,5 +1,5 @@
 FROM joseluisq/static-web-server
 COPY ./public /public/
-COPY ./entrypoint.sh /
+ENV SERVER_PORT=$PORT
 
 
