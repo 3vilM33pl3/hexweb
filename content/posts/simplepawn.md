@@ -24,10 +24,8 @@ If you want to read along
 * If you want to create new C++ classes you need to use the 
 [Unreal Editor C++ Class Wizard](https://docs.unrealengine.com/en-US/Programming/Development/ManagingGameCode/CppClassWizard/index.html).
 * Unreal Engine 4.25
+* Documentation [UE4 Plugin Development](https://docs.unrealengine.com/en-US/Programming/Plugins/index.html)
 
-## Plugin structure
-The most minimalist plugin in UE4 contains a single class to enable UE4 to start and shutdown the   
- 
 ## Architecture
 ![Simple Pawn Architecture](/svg/SimplePawnArchitecture.svg)
 A Pawn is the UE4 base class of all Actors which can be possesed by players or AI. 
@@ -254,5 +252,5 @@ instead of looking it up, is more efficient.
 
 
 ## Executing
-Enable `View Plugin Content` 
+Drag the `SimplePawn` from the plugin C++ folder into your level and press forward :-)
 

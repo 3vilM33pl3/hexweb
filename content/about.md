@@ -1,24 +1,18 @@
 ---
 title: "About"
 date: 2020-07-28T18:31:03+01:00
-draft: true
+draft: false
 image: Shop.png
 ---
-"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+I'm a hobbyist/indoe game developer interested in learning to program in Unreal Engine. 
+On this webist you will find a selection of things I have learned and think are worth sharing.
 
-When $\(a \ne 0\)$, there are two solutions to $\(ax^2 + bx + c = 0\)$ and they are $$\[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]$$
+For any questions ping me on Twitter
+
+[https://twitter.com/3vilM33pl3](https://twitter.com/3vilM33pl3)
+
+For any improvements send me a pull request via Github
+
+[https://github.com/3vilM33pl3/](https://github.com/3vilM33pl3/)
 
 
-```c++ {linenos=true}
-if (!DesiredMovementThisFrame.IsNearlyZero())
-{
-    FHitResult Hit;
-    SafeMoveUpdatedComponent(DesiredMovementThisFrame, 
-                             UpdatedComponent->GetComponentRotation(), true, Hit);
-
-    if (Hit.IsValidBlockingHit())
-    {
-        SlideAlongSurface(DesiredMovementThisFrame, 1.f - Hit.Time, Hit.Normal, Hit);
-    }
-}
-```
