@@ -1,7 +1,7 @@
 ---
 title: "UE4 Plugin: A Simple Pawn"
 date: 2020-08-16T11:45:56+01:00
-draft: true
+draft: false
 image: MeepleOnTarget.png
 ---
 This article will explain how to create simple user controlled Pawn which can only move forward and backwards. 

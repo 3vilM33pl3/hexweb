@@ -4,8 +4,8 @@ date: 2020-07-28T18:31:03+01:00
 draft: false
 image: Shop.png
 ---
-I'm a hobbyist/indoe game developer interested in learning to program in Unreal Engine. 
-On this webist you will find a selection of things I have learned and think are worth sharing.
+I'm a hobbyist/indie game developer interested in learning to program in Unreal Engine. 
+On this website you will find a selection of things I have learned and think are worth sharing.
 
 For any questions ping me on Twitter
 
