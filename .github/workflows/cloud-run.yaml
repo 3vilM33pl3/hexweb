@@ -39,5 +39,5 @@ jobs:
       uses: 'google-github-actions/deploy-cloudrun@v0'
       with:
         service: '${{ env.SERVICE }}'
-        image: 'gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}'
+        image: 'us-docker.pkg.dev/${{ env.PROJECT_ID }}/gcr.io/${{ env.SERVICE }}'
         region: '${{ env.REGION }}'
