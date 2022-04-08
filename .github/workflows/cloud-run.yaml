@@ -13,45 +13,31 @@ env:
   SERVICE_NAME: hexweb
 
 jobs:
-  setup-build-deploy:
+  setup-build:
     name: Setup, Build, and Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v1
+    - name: Checkout
+      uses: actions/checkout@v1
 
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.74.3'
+        extended: true
+
+    - name: Build
+      run: hugo -v
+
+    - id: 'auth'
+        uses: 'google-github-actions/auth@v0'
         with:
-          hugo-version: '0.74.3'
-          extended: true
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}'
 
-      - name: Build
-        run: hugo -v
-
-      # Setup gcloud CLI
-      - uses: google-github-actions/deploy-cloudrun@main
-        with:
-          version: '275.0.0'
-          service_account_email: ${{ secrets.SA_EMAIL }}
-          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}
-
-      # Configure gcloud CLI
-      - name: gcloud Set up
-        run: |
-          gcloud config set project $PROJECT_ID
-
-      # Build and push image to Google Container Registry
-      - name: Build
-        run: |
-          gcloud builds submit -t gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA --timeout 20m
-
-      # Deploy image to Cloud Run
-      - name: Deploy
-        run: |
-          gcloud run deploy $SERVICE_NAME \
-            --region $RUN_REGION \
-            --image gcr.io/$PROJECT_ID/$SERVICE_NAME:$GITHUB_SHA \
-            --platform managed \
-            --allow-unauthenticated
+    - name: 'Deploy to Cloud Run'
+      uses: 'google-github-actions/deploy-cloudrun@v0'
+      with:
+        service: '${{ env.SERVICE }}'
+        image: 'gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE }}'
+        region: '${{ env.REGION }}'
